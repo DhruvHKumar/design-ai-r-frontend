@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, Zap, DollarSign, AlertCircle, Loader2, Info, MapPin, User, Ruler, Briefcase, Navigation, Bike, Rotate3D, MoveHorizontal, CheckCircle2, Scan, Globe, ShieldCheck, Sparkles } from 'lucide-react';
 
 // Load all images from assets
@@ -644,6 +644,22 @@ export default function AccessoryConfigurator() {
         // Thank You / Checkout Complete View
         if (checkoutComplete) {
             const selectedBike = bikes.find(b => b.name === formData.selectedBike);
+
+            const successMessages = [
+                "Your Dream Ride Awaits! 🏍️",
+                "Get Ready to Rule the Roads! 🛣️",
+                "Adventure is Calling! 🌍",
+                "Welcome to the Bajaj Family! 🤝",
+                "Start Your Engine, Start Your Journey! 🚀",
+                "The Road is Yours to Conquer! 🏁",
+                "Ride with Pride! 🦁",
+                "Unleash the Power! ⚡"
+            ];
+
+            const randomSuccessMessage = useMemo(() => {
+                return successMessages[Math.floor(Math.random() * successMessages.length)];
+            }, [checkoutComplete]);
+
             return (
                 <div className="text-center py-20 animate-fade-in min-h-[500px] flex flex-col justify-center items-center max-w-2xl mx-auto">
                     <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 text-green-600 rounded-full mb-8 shadow-lg animate-scale-in">
@@ -651,7 +667,7 @@ export default function AccessoryConfigurator() {
                     </div>
 
                     <h2 className="text-4xl font-extrabold text-slate-900 mb-4">Thank You, {formData.name}!</h2>
-                    <h3 className="text-2xl font-bold text-blue-600 mb-6">Your Dream Ride Awaits! 🏍️</h3>
+                    <h3 className="text-2xl font-bold text-blue-600 mb-6">{randomSuccessMessage}</h3>
 
                     <div className="glass-card bg-white rounded-2xl p-8 mb-8 border-2 border-green-100 text-left">
                         <p className="text-slate-600 text-lg leading-relaxed mb-4">
