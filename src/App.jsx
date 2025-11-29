@@ -17,6 +17,7 @@ export default function AccessoryConfigurator() {
     const [recommendations, setRecommendations] = useState(null);
     const [ageError, setAgeError] = useState(null);
     const [selectedAccessories, setSelectedAccessories] = useState([]);
+    const [checkoutComplete, setCheckoutComplete] = useState(false);
 
     // Form Data
     const [formData, setFormData] = useState({
@@ -640,6 +641,68 @@ export default function AccessoryConfigurator() {
             );
         }
 
+        // Thank You / Checkout Complete View
+        if (checkoutComplete) {
+            const selectedBike = bikes.find(b => b.name === formData.selectedBike);
+            return (
+                <div className="text-center py-20 animate-fade-in min-h-[500px] flex flex-col justify-center items-center max-w-2xl mx-auto">
+                    <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 text-green-600 rounded-full mb-8 shadow-lg animate-scale-in">
+                        <CheckCircle2 size={56} />
+                    </div>
+
+                    <h2 className="text-4xl font-extrabold text-slate-900 mb-4">Thank You, {formData.name}!</h2>
+                    <h3 className="text-2xl font-bold text-blue-600 mb-6">Your Dream Ride Awaits! 🏍️</h3>
+
+                    <div className="glass-card bg-white rounded-2xl p-8 mb-8 border-2 border-green-100 text-left">
+                        <p className="text-slate-600 text-lg leading-relaxed mb-4">
+                            Congratulations on configuring your perfect <strong className="text-slate-900">{formData.selectedBike}</strong>!
+                            You've selected an amazing set of accessories that will make your riding experience exceptional.
+                        </p>
+                        <p className="text-slate-600 text-lg leading-relaxed">
+                            A Bajaj representative will contact you soon at your location in <strong className="text-slate-900">{formData.location}</strong> to
+                            finalize your purchase and schedule delivery of your new bike.
+                        </p>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-6 mb-8 w-full">
+                        <h4 className="font-bold text-slate-900 mb-4 text-lg">Your Configuration Summary:</h4>
+                        <div className="space-y-2 text-left">
+                            <div className="flex justify-between">
+                                <span className="text-slate-600">Vehicle:</span>
+                                <span className="font-bold text-slate-900">{formData.selectedBike}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-slate-600">Accessories:</span>
+                                <span className="font-bold text-slate-900">{selectedAccessories.length} items</span>
+                            </div>
+                            <div className="flex justify-between pt-2 border-t border-slate-200">
+                                <span className="font-bold text-slate-900">Total Investment:</span>
+                                <span className="text-xl font-bold text-green-600">{formatPrice(calculateGrandTotal())}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className="text-slate-500 text-sm mb-8">
+                        Ride safe and enjoy the journey ahead!
+                    </p>
+
+                    <div className="flex gap-4">
+                        <button
+                            onClick={() => {
+                                setCheckoutComplete(false);
+                                setStep(1);
+                                setRecommendations(null);
+                                setSelectedAccessories([]);
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-lg"
+                        >
+                            Configure Another Bike
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="animate-slide-up-slow">
                 <div className="text-center mb-12">
@@ -754,7 +817,10 @@ export default function AccessoryConfigurator() {
                                 </div>
                             </div>
 
-                            <button className="w-full mt-6 bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-lg">
+                            <button
+                                onClick={() => setCheckoutComplete(true)}
+                                className="w-full mt-6 bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-lg"
+                            >
                                 PROCEED TO CHECKOUT
                             </button>
                         </div>
