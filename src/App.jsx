@@ -294,55 +294,89 @@ export default function AccessoryConfigurator() {
     // AI Processing Animation Component
     const AIProcessingOverlay = () => {
         const [phase, setPhase] = useState(0);
+        const [logs, setLogs] = useState([]);
+
         const steps = [
-            { text: "Connecting to Neural Engine...", icon: <Zap size={28} className="text-yellow-500 animate-pulse" /> },
-            { text: `Analyzing ${formData.location} terrain...`, icon: <Globe size={28} className="text-blue-500 animate-spin-slow" /> },
-            { text: "Checking ergonomics...", icon: <Scan size={28} className="text-emerald-500" /> },
-            { text: "Optimizing commute efficiency...", icon: <CheckCircle2 size={28} className="text-purple-500" /> },
-            { text: "Finalizing loadout...", icon: <ShieldCheck size={28} className="text-orange-500" /> }
+            { text: "Connecting to Neural Engine...", icon: <Zap size={32} className="text-yellow-400" />, color: "text-yellow-400", bg: "bg-yellow-400/20" },
+            { text: `Scanning ${formData.location} terrain data...`, icon: <Globe size={32} className="text-blue-400" />, color: "text-blue-400", bg: "bg-blue-400/20" },
+            { text: "Analyzing rider ergonomics...", icon: <Scan size={32} className="text-emerald-400" />, color: "text-emerald-400", bg: "bg-emerald-400/20" },
+            { text: "Optimizing for commute efficiency...", icon: <CheckCircle2 size={32} className="text-purple-400" />, color: "text-purple-400", bg: "bg-purple-400/20" },
+            { text: "Finalizing accessory loadout...", icon: <ShieldCheck size={32} className="text-orange-400" />, color: "text-orange-400", bg: "bg-orange-400/20" }
         ];
 
         useEffect(() => {
             const interval = setInterval(() => {
                 setPhase(p => (p < steps.length - 1 ? p + 1 : p));
-            }, 800);
-            return () => clearInterval(interval);
+            }, 1500);
+
+            // Simulated system logs
+            const logInterval = setInterval(() => {
+                const newLog = `[SYSTEM] ${new Date().toLocaleTimeString()} - Process ID: ${Math.floor(Math.random() * 9999)} OK`;
+                setLogs(prev => [newLog, ...prev].slice(0, 5));
+            }, 300);
+
+            return () => {
+                clearInterval(interval);
+                clearInterval(logInterval);
+            };
         }, []);
 
         return (
-            <div className="flex flex-col items-center justify-center py-24 min-h-[500px] w-full max-w-2xl mx-auto">
-                <div className="relative mb-12">
-                    {/* Animated Rings */}
-                    <div className="absolute inset-0 rounded-full border-4 border-blue-100 animate-ping opacity-30"></div>
-                    <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 border-r-transparent border-b-blue-600 border-l-transparent animate-spin w-32 h-32"></div>
-                    <div className="w-32 h-32 rounded-full bg-white flex items-center justify-center shadow-xl relative z-10 border border-slate-100">
-                        {steps[phase].icon}
+            <div className="flex flex-col items-center justify-center py-20 min-h-[600px] w-full max-w-3xl mx-auto relative overflow-hidden rounded-3xl bg-slate-900 text-white">
+                {/* Background Grid Effect */}
+                <div className="absolute inset-0 opacity-10"
+                    style={{ backgroundImage: 'radial-gradient(circle, #475569 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
+                </div>
+
+                {/* Central Scanner */}
+                <div className="relative mb-16">
+                    <div className="absolute inset-0 rounded-full border-2 border-blue-500/30 animate-ping opacity-20"></div>
+                    <div className="absolute inset-0 rounded-full border border-blue-400/50 animate-[spin_4s_linear_infinite] w-48 h-48"></div>
+                    <div className="absolute inset-2 rounded-full border border-indigo-400/30 animate-[spin_3s_linear_infinite_reverse]"></div>
+
+                    {/* Radar Scan Line */}
+                    <div className="absolute inset-0 rounded-full overflow-hidden animate-spin-slow">
+                        <div className="h-1/2 w-full bg-gradient-to-b from-transparent to-blue-500/20 border-b border-blue-400/50"></div>
+                    </div>
+
+                    <div className="w-48 h-48 rounded-full bg-slate-800/80 backdrop-blur-xl flex items-center justify-center shadow-[0_0_50px_rgba(59,130,246,0.3)] relative z-10 border border-slate-700">
+                        <div className={`transition-all duration-500 transform ${steps[phase].color} scale-110`}>
+                            {steps[phase].icon}
+                        </div>
                     </div>
                 </div>
 
-                <div className="space-y-6 text-center w-full max-w-md">
-                    <h3 className="text-2xl font-bold text-slate-800 transition-all duration-300 animate-fade-in">
-                        {steps[phase].text}
-                    </h3>
-
-                    {/* Progress Steps */}
-                    <div className="flex gap-2 justify-center mt-6">
-                        {steps.map((_, idx) => (
-                            <div
-                                key={idx}
-                                className={`h-1.5 rounded-full transition-all duration-500 ${idx <= phase ? 'w-10 bg-blue-600 shadow-glow' : 'w-2 bg-slate-200'}`}
-                            />
-                        ))}
+                {/* Status Text */}
+                <div className="space-y-8 text-center w-full max-w-lg z-10">
+                    <div>
+                        <h3 className="text-3xl font-bold mb-2 tracking-tight">
+                            {steps[phase].text}
+                        </h3>
+                        <p className="text-slate-400 text-sm font-mono uppercase tracking-widest">
+                            AI Neural Engine v2.4.0
+                        </p>
                     </div>
 
-                    <p className="text-slate-400 text-sm animate-pulse pt-4">
-                        Processing configuration for <span className="font-semibold text-slate-600">{formData.selectedBike}</span>
-                    </p>
+                    {/* Progress Bar */}
+                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700">
+                        <div
+                            className={`h-full transition-all duration-1000 ease-out ${steps[phase].bg.replace('/20', '')}`}
+                            style={{ width: `${((phase + 1) / steps.length) * 100}%` }}
+                        ></div>
+                    </div>
+
+                    {/* System Logs */}
+                    <div className="bg-black/40 rounded-lg p-4 font-mono text-xs text-left text-green-400/80 h-32 overflow-hidden border border-slate-800/50 shadow-inner">
+                        {logs.map((log, i) => (
+                            <div key={i} className="mb-1 animate-fade-in">
+                                <span className="opacity-50 mr-2">{'>'}</span>{log}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         );
     };
-
     const renderProgressBar = () => (
         <div className="w-full bg-slate-100 h-1.5 rounded-full mb-10 overflow-hidden">
             <div
