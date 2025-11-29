@@ -578,7 +578,7 @@ export default function AccessoryConfigurator() {
                             <input
                                 type="range"
                                 min="500"
-                                max="10000"
+                                max="15000"
                                 step="500"
                                 value={formData.budget}
                                 onChange={(e) => handleInputChange('budget', e.target.value)}
@@ -588,7 +588,7 @@ export default function AccessoryConfigurator() {
 
                         <div className="flex justify-between text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">
                             <span>₹500</span>
-                            <span>₹10,000+</span>
+                            <span>₹15,000+</span>
                         </div>
                     </div>
 
