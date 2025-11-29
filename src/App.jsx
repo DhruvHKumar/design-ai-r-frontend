@@ -16,6 +16,7 @@ export default function AccessoryConfigurator() {
     const [error, setError] = useState(null);
     const [recommendations, setRecommendations] = useState(null);
     const [ageError, setAgeError] = useState(null);
+    const [selectedAccessories, setSelectedAccessories] = useState([]);
 
     // Form Data
     const [formData, setFormData] = useState({
@@ -29,15 +30,54 @@ export default function AccessoryConfigurator() {
         budget: 2000
     });
 
-    // --- Constants & Options ---
+    // ---Constants & Options ---
     const bikes = [
-        { id: 'freedom', name: 'Bajaj Freedom', folderName: 'Bajaj Freedom 125 ', category: 'CNG/Commuter', color: 'bg-emerald-50 text-emerald-900 border-emerald-200', ringColor: 'ring-emerald-500', iconColor: 'text-emerald-500' },
-        { id: 'platina', name: 'Bajaj Platina', folderName: 'Bajaj Platina 110', category: 'Comfort Commuter', color: 'bg-blue-50 text-blue-900 border-blue-200', ringColor: 'ring-blue-500', iconColor: 'text-blue-500' },
-        { id: 'ct', name: 'Bajaj CT', folderName: 'Bajaj CT 110X', category: 'Rugged Commuter', color: 'bg-slate-50 text-slate-900 border-slate-200', ringColor: 'ring-slate-500', iconColor: 'text-slate-500' },
-        { id: 'pulsar125', name: 'Bajaj Pulsar 125', folderName: 'Bajaj Pulsar 125 ', category: 'Sport Commuter', color: 'bg-red-50 text-red-900 border-red-200', ringColor: 'ring-red-500', iconColor: 'text-red-500' },
-        { id: 'pulsar150', name: 'Bajaj Pulsar 150', folderName: 'Bajaj Pulsar 150 ', category: 'Power Sport', color: 'bg-orange-50 text-orange-900 border-orange-200', ringColor: 'ring-orange-500', iconColor: 'text-orange-500' }
+        { id: 'freedom', name: 'Bajaj Freedom', folderName: 'Bajaj Freedom 125 ', category: 'CNG/Commuter', price: 95000, color: 'bg-emerald-50 text-emerald-900 border-emerald-200', ringColor: 'ring-emerald-500', iconColor: 'text-emerald-500' },
+        { id: 'platina', name: 'Bajaj Platina', folderName: 'Bajaj Platina 110', category: 'Comfort Commuter', price: 80000, color: 'bg-blue-50 text-blue-900 border-blue-200', ringColor: 'ring-blue-500', iconColor: 'text-blue-500' },
+        { id: 'ct', name: 'Bajaj CT', folderName: 'Bajaj CT 110X', category: 'Rugged Commuter', price: 75000, color: 'bg-slate-50 text-slate-900 border-slate-200', ringColor: 'ring-slate-500', iconColor: 'text-slate-500' },
+        { id: 'pulsar125', name: 'Bajaj Pulsar 125', folderName: 'Bajaj Pulsar 125 ', category: 'Sport Commuter', price: 105000, color: 'bg-red-50 text-red-900 border-red-200', ringColor: 'ring-red-500', iconColor: 'text-red-500' },
+        { id: 'pulsar150', name: 'Bajaj Pulsar 150', folderName: 'Bajaj Pulsar 150 ', category: 'Power Sport', price: 150000, color: 'bg-orange-50 text-orange-900 border-orange-200', ringColor: 'ring-orange-500', iconColor: 'text-orange-500' }
     ];
 
+    // --- Cart Functions ---
+    const addToCart = (item) => {
+        // Check if item already exists
+        const exists = selectedAccessories.some(acc => acc.name === item.name);
+        if (!exists) {
+            setSelectedAccessories([...selectedAccessories, { ...item, addedAt: Date.now() }]);
+        }
+    };
+
+    const removeFromCart = (index) => {
+        setSelectedAccessories(selectedAccessories.filter((_, i) => i !== index));
+    };
+
+    const calculateAccessoriesTotal = () => {
+        return selectedAccessories.reduce((sum, item) => {
+            // Parse price string like "₹1,200" or "₹450 - ₹800"
+            const priceStr = item.price || '0';
+            const match = priceStr.match(/₹([\d,]+)/);
+            if (match) {
+                const price = parseFloat(match[1].replace(/,/g, ''));
+                return sum + price;
+            }
+            return sum;
+        }, 0);
+    };
+
+    const calculateGrandTotal = () => {
+        const selectedBike = bikes.find(b => b.name === formData.selectedBike);
+        const bikePrice = selectedBike?.price || 0;
+        return bikePrice + calculateAccessoriesTotal();
+    };
+
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0
+        }).format(price);
+    };
     // --- Handlers ---
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -312,7 +352,7 @@ export default function AccessoryConfigurator() {
                                 handleInputChange('selectedBike', bike.name);
                                 setTimeout(() => setStep(2), 200);
                             }}
-                            className={`p-6 rounded-2xl text-left transition-all duration-300 group relative overflow-hidden min-h-[340px] flex flex-col border
+                            className={`p-6 rounded-2xl text-left transition-all duration-300 group relative overflow-hidden min-h-[400px] flex flex-col border
                   ${formData.selectedBike === bike.name
                                     ? `border-transparent ring-2 ${bike.ringColor} bg-white shadow-xl scale-[1.02]`
                                     : 'border-slate-200 hover:border-blue-300 hover:shadow-lg bg-white hover:-translate-y-1'
@@ -321,6 +361,10 @@ export default function AccessoryConfigurator() {
                             <div className="flex justify-between items-start w-full mb-4">
                                 <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${bike.color}`}>
                                     {bike.category}
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs text-slate-400 font-medium">Starting at</p>
+                                    <p className="text-lg font-bold text-slate-900">{formatPrice(bike.price)}</p>
                                 </div>
                             </div>
 
@@ -344,6 +388,40 @@ export default function AccessoryConfigurator() {
                     );
                 })}
             </div>
+
+            {/* Pricing Summary Panel */}
+            {formData.selectedBike && (
+                <div className="max-w-md mx-auto mt-8 animate-slide-up">
+                    <div className="glass-card bg-white rounded-2xl p-6 border-2 border-blue-100">
+                        <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <DollarSign size={20} className="text-blue-600" />
+                            Pricing Summary
+                        </h3>
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                                <span className="text-slate-600">Vehicle Cost</span>
+                                <span className="font-bold text-slate-900">
+                                    {formatPrice(bikes.find(b => b.name === formData.selectedBike)?.price || 0)}
+                                </span>
+                            </div>
+                            {selectedAccessories.length > 0 && (
+                                <div className="flex justify-between items-center">
+                                    <span className="text-slate-600">Accessories</span>
+                                    <span className="font-bold text-slate-900">
+                                        {formatPrice(calculateAccessoriesTotal())}
+                                    </span>
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+                                <span className="font-bold text-slate-900">Estimated Total</span>
+                                <span className="text-xl font-bold text-blue-600">
+                                    {formatPrice(calculateGrandTotal())}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 
@@ -573,40 +651,119 @@ export default function AccessoryConfigurator() {
                 </div>
 
                 <div className="grid gap-6 max-w-4xl mx-auto">
-                    {recommendations && recommendations.map((item, idx) => (
-                        <div
-                            key={idx}
-                            className="glass-card bg-white rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-start md:items-center group hover:border-blue-200"
-                            style={{ animationDelay: `${idx * 150}ms` }}
-                        >
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <span className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider rounded-full border border-slate-200">
-                                        {item.category || 'Accessory'}
-                                    </span>
-                                    {item.matchScore && (
-                                        <span className="flex items-center gap-1 text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">
-                                            <Zap size={12} /> {item.matchScore}% Match
+                    {recommendations && recommendations.map((item, idx) => {
+                        const isInCart = selectedAccessories.some(acc => acc.name === item.name);
+                        return (
+                            <div
+                                key={idx}
+                                className="glass-card bg-white rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-start md:items-center group hover:border-blue-200"
+                                style={{ animationDelay: `${idx * 150}ms` }}
+                            >
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <span className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider rounded-full border border-slate-200">
+                                            {item.category || 'Accessory'}
                                         </span>
-                                    )}
+                                        {item.matchScore && (
+                                            <span className="flex items-center gap-1 text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100">
+                                                <Zap size={12} /> {item.matchScore}% Match
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">{item.name || 'Accessory Name'}</h3>
+                                    <p className="text-slate-500 leading-relaxed">{item.reason || item.description || 'Recommended for your vehicle configuration.'}</p>
                                 </div>
-                                <h3 className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">{item.name || 'Accessory Name'}</h3>
-                                <p className="text-slate-500 leading-relaxed">{item.reason || item.description || 'Recommended for your vehicle configuration.'}</p>
+
+                                <div className="flex flex-col items-end gap-4 min-w-[160px] w-full md:w-auto border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-8">
+                                    <div className="text-xl font-bold text-slate-900">{item.price || '₹ -'}</div>
+                                    <button
+                                        onClick={() => addToCart(item)}
+                                        disabled={isInCart}
+                                        className={`w-full md:w-auto px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg ${isInCart
+                                            ? 'bg-green-100 text-green-700 cursor-not-allowed border border-green-300'
+                                            : 'bg-slate-900 hover:bg-blue-600 text-white'
+                                            }`}
+                                    >
+                                        {isInCart ? (
+                                            <span className="flex items-center gap-2">
+                                                <CheckCircle2 size={16} /> Added
+                                            </span>
+                                        ) : (
+                                            'Add to Cart'
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Cart Summary Section */}
+                {selectedAccessories.length > 0 && (
+                    <div className="max-w-4xl mx-auto mt-12 animate-slide-up">
+                        <div className="glass-card bg-white rounded-2xl p-8 border-2 border-blue-100">
+                            <h3 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                                <DollarSign size={28} className="text-blue-600" />
+                                Your Cart Summary
+                            </h3>
+
+                            <div className="space-y-4 mb-6">
+                                {selectedAccessories.map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0">
+                                        <div className="flex-1">
+                                            <h4 className="font-bold text-slate-800">{item.name}</h4>
+                                            <p className="text-sm text-slate-500">Part No.: {item.partNo || 'N/A'}</p>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-lg font-bold text-slate-900">+ {item.price}</span>
+                                            <button
+                                                onClick={() => removeFromCart(idx)}
+                                                className="text-red-500 hover:text-red-700 underline text-sm font-medium"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
 
-                            <div className="flex flex-col items-end gap-4 min-w-[160px] w-full md:w-auto border-t md:border-t-0 md:border-l border-slate-100 pt-6 md:pt-0 md:pl-8">
-                                <div className="text-xl font-bold text-slate-900">{item.price || '₹ -'}</div>
-                                <button className="w-full md:w-auto bg-slate-900 hover:bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg">
-                                    Add to Cart
-                                </button>
+                            <div className="space-y-3 pt-6 border-t-2 border-slate-200">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-slate-600 font-medium">Total bike cost</span>
+                                    <span className="text-lg font-bold text-slate-900">
+                                        {formatPrice(bikes.find(b => b.name === formData.selectedBike)?.price || 0)}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <span className="text-slate-600 font-medium">Total cost of the accessories</span>
+                                        <p className="text-xs text-slate-400">(Without labour costs)</p>
+                                    </div>
+                                    <span className="text-lg font-bold text-slate-900">
+                                        {formatPrice(calculateAccessoriesTotal())}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center pt-4 border-t border-slate-200">
+                                    <div>
+                                        <span className="text-xl font-bold text-slate-900">Total price</span>
+                                        <p className="text-xs text-slate-400">(Without labour costs)</p>
+                                    </div>
+                                    <span className="text-3xl font-bold text-slate-900">
+                                        {formatPrice(calculateGrandTotal())}
+                                    </span>
+                                </div>
                             </div>
+
+                            <button className="w-full mt-6 bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-lg">
+                                PROCEED TO CHECKOUT
+                            </button>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                )}
 
                 <div className="mt-16 flex justify-center">
                     <button
-                        onClick={() => { setStep(1); setRecommendations(null); }}
+                        onClick={() => { setStep(1); setRecommendations(null); setSelectedAccessories([]); }}
                         className="text-slate-400 hover:text-slate-800 font-medium flex items-center gap-2 transition-colors"
                     >
                         Start New Configuration
