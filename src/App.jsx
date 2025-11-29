@@ -40,6 +40,21 @@ export default function AccessoryConfigurator() {
         { id: 'pulsar150', name: 'Bajaj Pulsar 150', folderName: 'Bajaj Pulsar 150 ', category: 'Power Sport', price: 150000, color: 'bg-orange-50 text-orange-900 border-orange-200', ringColor: 'ring-orange-500', iconColor: 'text-orange-500' }
     ];
 
+    // Random Success Message
+    const successMessage = useMemo(() => {
+        const messages = [
+            "Your Dream Ride Awaits! 🏍️",
+            "Get Ready to Rule the Roads! 🛣️",
+            "Adventure is Calling! 🌍",
+            "Welcome to the Bajaj Family! 🤝",
+            "Start Your Engine, Start Your Journey! 🚀",
+            "The Road is Yours to Conquer! 🏁",
+            "Ride with Pride! 🦁",
+            "Unleash the Power! ⚡"
+        ];
+        return messages[Math.floor(Math.random() * messages.length)];
+    }, [checkoutComplete]);
+
     // --- Cart Functions ---
     const addToCart = (item) => {
         // Check if item already exists
@@ -79,6 +94,7 @@ export default function AccessoryConfigurator() {
             maximumFractionDigits: 0
         }).format(price);
     };
+
     // --- Handlers ---
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -645,21 +661,6 @@ export default function AccessoryConfigurator() {
         if (checkoutComplete) {
             const selectedBike = bikes.find(b => b.name === formData.selectedBike);
 
-            const successMessages = [
-                "Your Dream Ride Awaits! 🏍️",
-                "Get Ready to Rule the Roads! 🛣️",
-                "Adventure is Calling! 🌍",
-                "Welcome to the Bajaj Family! 🤝",
-                "Start Your Engine, Start Your Journey! 🚀",
-                "The Road is Yours to Conquer! 🏁",
-                "Ride with Pride! 🦁",
-                "Unleash the Power! ⚡"
-            ];
-
-            const randomSuccessMessage = useMemo(() => {
-                return successMessages[Math.floor(Math.random() * successMessages.length)];
-            }, [checkoutComplete]);
-
             return (
                 <div className="text-center py-20 animate-fade-in min-h-[500px] flex flex-col justify-center items-center max-w-2xl mx-auto">
                     <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 text-green-600 rounded-full mb-8 shadow-lg animate-scale-in">
@@ -667,7 +668,7 @@ export default function AccessoryConfigurator() {
                     </div>
 
                     <h2 className="text-4xl font-extrabold text-slate-900 mb-4">Thank You, {formData.name}!</h2>
-                    <h3 className="text-2xl font-bold text-blue-600 mb-6">{randomSuccessMessage}</h3>
+                    <h3 className="text-2xl font-bold text-blue-600 mb-6">{successMessage}</h3>
 
                     <div className="glass-card bg-white rounded-2xl p-8 mb-8 border-2 border-green-100 text-left">
                         <p className="text-slate-600 text-lg leading-relaxed mb-4">
